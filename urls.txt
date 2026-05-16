@@ -1,0 +1,6 @@
+# Paste URL YouTube di sini (1 per baris)
+# Baris yang dimulai dengan # akan diabaikan
+# Contoh:
+# https://youtu.be/VIDEO_ID_1
+# https://youtu.be/VIDEO_ID_2
+# https://www.youtube.com/watch?v=VIDEO_ID_3

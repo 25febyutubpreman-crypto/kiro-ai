@@ -1,0 +1,134 @@
+Saya akan memberikan transkrip audio Arab dari sebuah video dakwah pendek.
+
+TUGAS UTAMA:
+Berdasarkan transkrip audio yang diberikan, buat subtitle bilingual Arab + Indonesia dalam format JSON valid.
+
+SUMBER KEBENARAN:
+- Gunakan transkrip audio sebagai satu-satunya sumber kebenaran.
+- Jangan mengarang ucapan yang tidak ada di transkrip.
+
+ATURAN TRANSKRIP ARAB:
+1. Transkripsikan ucapan Arab sesuai kata-kata asli pembicara.
+2. Semua teks Arab wajib memakai harakat lengkap.
+3. Harakat harus mengikuti pelafalan audio.
+4. Jangan menulis Arab gundul.
+5. Jangan meringkas atau memparafrasekan teks Arab.
+6. Jika ada ayat, hadits, nama ulama, lafaz agama, atau istilah fikih, periksa harakat dengan teliti.
+7. Gunakan simbol Islam yang benar, misalnya ﷺ.
+8. Jika audio tidak jelas, isi teks Arab dengan: غَيْرُ وَاضِحٍ
+
+ATURAN TERJEMAHAN INDONESIA:
+1. Terjemahkan makna Arab secara akurat, natural, dan mudah dipahami.
+2. Jangan menambah penjelasan panjang yang tidak ada di audio.
+3. Jika perlu konteks singkat, gunakan tanda kurung.
+4. Jika audio tidak jelas, isi teks Indonesia dengan: tidak terdengar jelas
+5. Gunakan bahasa ringkas, tetapi jangan menghilangkan makna penting.
+
+ATURAN PEMECAHAN SUBTITLE:
+1. Subtitle harus cocok untuk Shorts/Reels/TikTok vertikal.
+2. Pecah subtitle mengikuti:
+   - jeda napas,
+   - perubahan intonasi,
+   - tekanan makna,
+   - perpindahan frasa,
+   - bagian suara pelan,
+   - bagian suara cepat.
+3. Jangan membuat satu subtitle terlalu panjang.
+4. Ideal teks Indonesia maksimal 6 sampai 9 kata per item.
+5. Jika pembicara cepat, buat segmen lebih pendek.
+6. Jika pembicara pelan atau ada jeda, ikuti jedanya.
+7. Jika satu kalimat Arab panjang, pecah menjadi beberapa item.
+8. Pecahan Arab dan Indonesia harus sejajar maknanya.
+9. Setiap item arabicSubtitles wajib punya pasangan di indonesianSubtitles.
+10. Jumlah item arabicSubtitles dan indonesianSubtitles harus sama.
+11. startMs dan endMs pada pasangan Arab dan Indonesia harus sama.
+12. Timestamp harus mengikuti posisi ucapan asli dalam audio.
+13. Jangan membuat subtitle seperti paragraf panjang.
+14. Jangan membuat subtitle memenuhi layar.
+
+ATURAN JSON WAJIB:
+1. Output hanya boleh JSON valid.
+2. Jangan tulis markdown.
+3. Jangan pakai code block.
+4. Jangan tulis kata json.
+5. Jangan tulis penjelasan di luar JSON.
+6. Jangan beri catatan proses.
+7. Jangan menambahkan field baru.
+8. Jangan menghapus field.
+9. Jangan mengganti nama field.
+10. Jangan mengubah urutan field.
+11. Jangan gunakan trailing comma.
+12. Semua string wajib memakai double quote JSON.
+13. Kalau teks subtitle mengandung tanda kutip lurus ", wajib escape menjadi \".
+14. Lebih aman: jangan gunakan tanda kutip lurus " di dalam subtitle. Gunakan tanda kutip atau hapus tanda kutipnya.
+15. Jangan ada line break mentah di dalam string. Jika perlu baris baru, gunakan spasi biasa.
+16. Pastikan JSON bisa langsung diparse dengan JSON.parse().
+
+FIELD YANG DILARANG:
+Jangan gunakan field berikut:
+- segments
+- transcription
+- translation
+- summary
+- notes
+- corrections
+- captionSegments
+- englishSubtitles
+
+SUBTITLE HANYA BOLEH MASUK KE:
+- arabicSubtitles
+- indonesianSubtitles
+
+INFORMASI KEYAKINAN HANYA BOLEH MASUK KE:
+- authenticityConfidencePercent
+- authenticityConfidenceNote
+
+ATURAN CHANNEL:
+- Field channel wajib selalu bernilai "@GhulamFathulAmri".
+- Jangan mengubah channel berdasarkan channel asal video.
+
+ATURAN CONFIDENCE:
+- authenticityConfidencePercent berisi angka 0 sampai 100.
+- Jangan otomatis memberi 100.
+- Beri 100 hanya jika audio sangat jelas dan semua ucapan dapat diverifikasi.
+- authenticityConfidenceNote maksimal 1 kalimat pendek.
+- authenticityConfidenceNote maksimal 120 karakter.
+
+ATURAN JUDUL:
+- title pakai Bahasa Indonesia.
+- Gunakan huruf kapital.
+- Judul harus singkat, jelas, dan cocok untuk video dakwah pendek.
+
+ATURAN VIDEO:
+- Field video harus berisi path: "/videos/(videoId).mp4"
+- Jangan isi dengan URL.
+
+OUTPUT FINAL:
+Langsung keluarkan JSON final saja dengan struktur persis berikut:
+
+{
+  "video": "/videos/(videoId).mp4",
+  "title": "JUDUL VIDEO PAKAI BAHASA INDONESIA",
+  "speaker": "NAMA PEMBICARA DENGAN LENGKAP",
+  "channel": "@GhulamFathulAmri",
+  "logo": "/logo-islam-itu-rahmat.png",
+  "durationInSeconds": 0,
+  "startFromSeconds": 0,
+  "videoFit": "cover",
+  "authenticityConfidencePercent": 0,
+  "authenticityConfidenceNote": "Catatan singkat keyakinan audio.",
+  "arabicSubtitles": [
+    {
+      "startMs": 0,
+      "endMs": 1500,
+      "text": "النَّصُّ الْعَرَبِيُّ"
+    }
+  ],
+  "indonesianSubtitles": [
+    {
+      "startMs": 0,
+      "endMs": 1500,
+      "text": "Teks Indonesia pendek."
+    }
+  ]
+}
