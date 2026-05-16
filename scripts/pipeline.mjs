@@ -118,9 +118,9 @@ async function main() {
   console.log(" FASE 1: DOWNLOAD YOUTUBE");
   console.log("=".repeat(60));
 
-  const downloadResults = await downloadAll(urls, config);
+  const downloadResults = downloadAll(urls, config);
   const successfulDownloads = downloadResults.filter(
-    (r) => r.status === "success" || r.status === "skipped"
+    (r) => r.status === "ok" || r.status === "skip"
   );
 
   if (successfulDownloads.length === 0) {
@@ -184,7 +184,9 @@ async function main() {
   console.log("\n" + "=".repeat(60));
   console.log(" RINGKASAN PIPELINE");
   console.log("=".repeat(60));
-  console.log(`Download : ${successfulDownloads.length}/${urls.length} berhasil`);
+  const dlOk = downloadResults.filter((r) => r.status === "ok").length;
+  const dlSkip = downloadResults.filter((r) => r.status === "skip").length;
+  console.log(`Download : ${dlOk} baru + ${dlSkip} skip / ${urls.length} total`);
   console.log(`Transkrip: ${successfulTranscriptions.length}/${videoPaths.length} berhasil`);
   console.log(`Format   : ${successfulFormats.length}/${transcriptions.length} berhasil`);
   console.log(`Manifest : ${totalVideos} video`);

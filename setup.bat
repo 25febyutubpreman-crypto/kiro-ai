@@ -1,8 +1,10 @@
 @echo off
 chcp 65001 >nul 2>&1
+title Dakwah Pipeline - Setup
+echo.
 echo =============================================
-echo  SETUP - Dakwah Pipeline
-echo  Download tools + install dependencies
+echo   SETUP - Dakwah Pipeline
+echo   Download tools + install dependencies
 echo =============================================
 echo.
 
@@ -24,43 +26,49 @@ if not exist downloads mkdir downloads
 if not exist output mkdir output
 
 :: Download yt-dlp
-echo.
-echo [INFO] Download yt-dlp...
-if exist tools\yt-dlp.exe (
-    echo [SKIP] yt-dlp.exe sudah ada. Update...
-    tools\yt-dlp.exe --update
-) else (
-    curl -L -o tools\yt-dlp.exe https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe
-    if %errorlevel% neq 0 (
-        echo [ERROR] Gagal download yt-dlp
-        pause
-        exit /b 1
+if not exist "tools\yt-dlp.exe" (
+    echo.
+    echo [INFO] Mendownload yt-dlp.exe...
+    powershell -Command "$ProgressPreference='SilentlyContinue'; Invoke-WebRequest -Uri 'https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe' -OutFile 'tools\yt-dlp.exe'"
+    if exist "tools\yt-dlp.exe" (
+        echo [OK] yt-dlp.exe downloaded
+    ) else (
+        echo [ERROR] Gagal download yt-dlp.exe
+        echo [ERROR] Download manual: https://github.com/yt-dlp/yt-dlp/releases
+        echo [ERROR] Simpan ke folder tools\
     )
-    echo [OK] yt-dlp.exe downloaded
+) else (
+    echo [OK] yt-dlp.exe sudah ada
 )
 
-:: Download ffmpeg
+:: Update yt-dlp
 echo.
-echo [INFO] Download ffmpeg...
-if exist tools\ffmpeg.exe (
-    echo [SKIP] ffmpeg.exe sudah ada
-) else (
-    echo [INFO] Download ffmpeg (~80MB, bisa lama)...
-    echo [INFO] Alternatif: download manual dari https://github.com/BtbN/FFmpeg-Builds/releases
-    echo [INFO] dan simpan ffmpeg.exe ke folder tools\
-    curl -L -o tools\ffmpeg.zip https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip
-    if %errorlevel% neq 0 (
-        echo [WARN] Gagal download ffmpeg. Coba download manual.
-        echo [WARN] Pipeline tetap bisa jalan kalau ffmpeg sudah terinstall di system.
-    ) else (
+echo [INFO] Updating yt-dlp...
+tools\yt-dlp.exe --update 2>nul
+echo [OK] yt-dlp up to date
+
+:: Download ffmpeg
+if not exist "tools\ffmpeg.exe" (
+    echo.
+    echo [INFO] Mendownload ffmpeg...
+    powershell -Command "$ProgressPreference='SilentlyContinue'; Invoke-WebRequest -Uri 'https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip' -OutFile 'tools\ffmpeg.zip'"
+    if exist "tools\ffmpeg.zip" (
         echo [INFO] Extracting ffmpeg...
-        powershell -command "Expand-Archive -Path 'tools\ffmpeg.zip' -DestinationPath 'tools\ffmpeg-temp' -Force"
-        for /r tools\ffmpeg-temp %%f in (ffmpeg.exe) do copy "%%f" tools\ffmpeg.exe >nul 2>&1
-        for /r tools\ffmpeg-temp %%f in (ffprobe.exe) do copy "%%f" tools\ffprobe.exe >nul 2>&1
-        rd /s /q tools\ffmpeg-temp 2>nul
-        del tools\ffmpeg.zip 2>nul
-        echo [OK] ffmpeg extracted
+        powershell -Command "Expand-Archive -Path 'tools\ffmpeg.zip' -DestinationPath 'tools\ffmpeg-temp' -Force"
+        for /d %%D in (tools\ffmpeg-temp\ffmpeg-*) do (
+            copy "%%D\bin\ffmpeg.exe" "tools\ffmpeg.exe" >nul 2>&1
+            copy "%%D\bin\ffprobe.exe" "tools\ffprobe.exe" >nul 2>&1
+        )
+        rmdir /s /q "tools\ffmpeg-temp" >nul 2>&1
+        del "tools\ffmpeg.zip" >nul 2>&1
+        if exist "tools\ffmpeg.exe" (
+            echo [OK] ffmpeg.exe extracted
+        ) else (
+            echo [WARN] ffmpeg extract gagal - tapi tidak wajib untuk download
+        )
     )
+) else (
+    echo [OK] ffmpeg.exe sudah ada
 )
 
 :: Check ffmpeg available
@@ -84,16 +92,30 @@ if not exist config.json (
     echo      - Masukkan DeepSeek API key
 )
 
-:: npm install (no dependencies needed for now, but future-proof)
+:: Check cookies
 echo.
-echo [INFO] Setup selesai!
+if exist "cookies.txt" (
+    echo [OK] cookies.txt ditemukan
+) else (
+    echo [WARN] cookies.txt TIDAK DITEMUKAN!
+    echo [WARN] Download PASTI gagal tanpa cookies.
+    echo [WARN] Cara:
+    echo   1. Install extension "Get cookies.txt LOCALLY" di Chrome
+    echo   2. Buka YouTube ^(pastikan login^)
+    echo   3. Klik extension, export cookies
+    echo   4. Simpan sebagai cookies.txt di folder ini
+)
+
+echo.
+echo [OK] Setup selesai!
 echo.
 echo =============================================
-echo  LANGKAH SELANJUTNYA:
-echo  1. Edit config.json - masukkan API keys
-echo  2. Edit urls.txt - paste URL YouTube
-echo  3. Jalankan run.bat untuk pipeline otomatis
-echo  4. Atau jalankan download.bat untuk download saja
+echo   LANGKAH SELANJUTNYA:
+echo   1. Pastikan cookies.txt ada di folder ini
+echo   2. Edit config.json - masukkan API keys
+echo   3. Edit urls.txt - paste URL YouTube
+echo   4. Jalankan run.bat untuk pipeline otomatis
+echo   5. Atau jalankan download.bat untuk download saja
 echo =============================================
 echo.
 pause
