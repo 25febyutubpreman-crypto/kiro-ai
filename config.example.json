@@ -1,0 +1,16 @@
+{
+  "groqApiKey": "YOUR_GROQ_API_KEY_HERE",
+  "deepseekApiKey": "YOUR_DEEPSEEK_API_KEY_HERE",
+  "deepseekBaseUrl": "https://api.deepseek.com",
+  "deepseekModel": "deepseek-chat",
+  "remotionProjectPath": "D:\\Capcut",
+  "outputDir": "D:\\Capcut\\src\\data",
+  "videoDir": "D:\\Capcut\\public\\videos",
+  "downloadDir": "./downloads",
+  "ytDlpCookies": "./cookies.txt",
+  "maxRetries": 3,
+  "concurrency": 1,
+  "whisperModel": "whisper-large-v3",
+  "channel": "@GhulamFathulAmri",
+  "logo": "/logo-islam-itu-rahmat.png"
+}
