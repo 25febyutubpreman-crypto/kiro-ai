@@ -1,15 +1,24 @@
 @echo off
 chcp 65001 >nul 2>&1
+title Dakwah Pipeline - FULL AUTOMATION
+echo.
 echo =============================================
-echo  PIPELINE OTOMATIS - FULL AUTOMATION
-echo  Download YT → Whisper → DeepSeek → Render
+echo   FULL PIPELINE - DAKWAH VIDEO AUTOMATION
+echo   Download - Whisper - DeepSeek - Save - Render
 echo =============================================
 echo.
 
 :: Check Node.js
 where node >nul 2>&1
-if %errorlevel% neq 0 (
+if %ERRORLEVEL% neq 0 (
     echo [ERROR] Node.js tidak ditemukan! Jalankan setup.bat dulu.
+    pause
+    exit /b 1
+)
+
+:: Check yt-dlp
+if not exist "tools\yt-dlp.exe" (
+    echo [ERROR] yt-dlp.exe tidak ditemukan! Jalankan setup.bat dulu.
     pause
     exit /b 1
 )
@@ -28,11 +37,17 @@ if not exist urls.txt (
     exit /b 1
 )
 
-:: Run pipeline
+:: Check cookies
+if not exist "cookies.txt" (
+    echo [WARN] cookies.txt tidak ditemukan - download mungkin gagal!
+)
+
+echo [INFO] Menjalankan FULL PIPELINE...
+echo [INFO] Fase: Download - Transcribe - Format - Save - Render
+echo.
+
+:: Run full pipeline
 node scripts/pipeline.mjs
 
 echo.
-echo =============================================
-echo  PIPELINE SELESAI
-echo =============================================
 pause

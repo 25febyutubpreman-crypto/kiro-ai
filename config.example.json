@@ -8,6 +8,8 @@
   "videoDir": "D:\\Capcut\\public\\videos",
   "downloadDir": "./downloads",
   "ytDlpCookies": "./cookies.txt",
+  "urlsFile": "urls.txt",
+  "delayBetweenDownloads": 3,
   "maxRetries": 3,
   "concurrency": 1,
   "whisperModel": "whisper-large-v3",

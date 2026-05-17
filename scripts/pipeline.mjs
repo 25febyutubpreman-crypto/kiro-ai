@@ -96,14 +96,47 @@ async function runRender(config) {
   }
 }
 
+function validateConfig(config) {
+  const issues = [];
+
+  if (!config.groqApiKey || config.groqApiKey === "YOUR_GROQ_API_KEY_HERE") {
+    issues.push("groqApiKey belum diset (untuk Whisper transcription)");
+  }
+  if (!config.deepseekApiKey || config.deepseekApiKey === "YOUR_DEEPSEEK_API_KEY_HERE") {
+    issues.push("deepseekApiKey belum diset (untuk subtitle formatting)");
+  }
+
+  if (issues.length > 0) {
+    console.log("");
+    console.log("!".repeat(60));
+    console.log("  PERINGATAN: API KEY BELUM DIKONFIGURASI!");
+    console.log("!".repeat(60));
+    for (const issue of issues) {
+      console.log("  - " + issue);
+    }
+    console.log("");
+    console.log("  Edit config.json dan masukkan API key yang diperlukan.");
+    console.log("  - Groq API key (GRATIS): https://console.groq.com");
+    console.log("  - DeepSeek API key: https://platform.deepseek.com");
+    console.log("!".repeat(60));
+    console.log("");
+    throw new Error("API key belum dikonfigurasi. Edit config.json dulu.");
+  }
+}
+
 async function main() {
+  console.log("");
   console.log("=".repeat(60));
-  console.log(" DAKWAH VIDEO PIPELINE - FULL AUTOMATION");
-  console.log(" Download → Whisper → DeepSeek → Save → Render");
+  console.log("  DAKWAH VIDEO PIPELINE - FULL AUTOMATION");
+  console.log("  Download -> Whisper -> DeepSeek -> Save -> Render");
   console.log("=".repeat(60));
   console.log();
 
   const config = loadConfig();
+
+  // Validate API keys BEFORE doing anything
+  validateConfig(config);
+
   const urls = loadUrls();
 
   if (urls.length === 0) {
@@ -115,12 +148,12 @@ async function main() {
 
   // === PHASE 1: Download ===
   console.log("\n" + "=".repeat(60));
-  console.log(" FASE 1: DOWNLOAD YOUTUBE");
+  console.log("  FASE 1/5: DOWNLOAD YOUTUBE");
   console.log("=".repeat(60));
 
-  const downloadResults = await downloadAll(urls, config);
+  const downloadResults = downloadAll(urls, config);
   const successfulDownloads = downloadResults.filter(
-    (r) => r.status === "success" || r.status === "skipped"
+    (r) => r.status === "ok" || r.status === "skip"
   );
 
   if (successfulDownloads.length === 0) {
@@ -135,7 +168,7 @@ async function main() {
 
   // === PHASE 2: Transcribe ===
   console.log("\n" + "=".repeat(60));
-  console.log(" FASE 2: WHISPER TRANSCRIPTION");
+  console.log("  FASE 2/5: WHISPER TRANSCRIPTION (Groq API)");
   console.log("=".repeat(60));
 
   const transcriptions = await transcribeAll(videoPaths, config);
@@ -148,7 +181,7 @@ async function main() {
 
   // === PHASE 3: DeepSeek Format ===
   console.log("\n" + "=".repeat(60));
-  console.log(" FASE 3: DEEPSEEK SUBTITLE FORMATTING");
+  console.log("  FASE 3/5: DEEPSEEK SUBTITLE FORMATTING");
   console.log("=".repeat(60));
 
   const formattedResults = await formatAll(transcriptions, config);
@@ -161,7 +194,7 @@ async function main() {
 
   // === PHASE 4: Save JSON ===
   console.log("\n" + "=".repeat(60));
-  console.log(" FASE 4: SAVE JSON FILES");
+  console.log("  FASE 4/5: SAVE JSON FILES");
   console.log("=".repeat(60));
 
   const outputDir = resolve(config.outputDir || "./output");
@@ -175,16 +208,18 @@ async function main() {
 
   // === PHASE 5: Render ===
   console.log("\n" + "=".repeat(60));
-  console.log(" FASE 5: RENDER BATCH");
+  console.log("  FASE 5/5: RENDER BATCH");
   console.log("=".repeat(60));
 
   await runRender(config);
 
   // === Summary ===
   console.log("\n" + "=".repeat(60));
-  console.log(" RINGKASAN PIPELINE");
+  console.log("  RINGKASAN PIPELINE");
   console.log("=".repeat(60));
-  console.log(`Download : ${successfulDownloads.length}/${urls.length} berhasil`);
+  const dlOk = downloadResults.filter((r) => r.status === "ok").length;
+  const dlSkip = downloadResults.filter((r) => r.status === "skip").length;
+  console.log(`Download : ${dlOk} baru + ${dlSkip} skip / ${urls.length} total`);
   console.log(`Transkrip: ${successfulTranscriptions.length}/${videoPaths.length} berhasil`);
   console.log(`Format   : ${successfulFormats.length}/${transcriptions.length} berhasil`);
   console.log(`Manifest : ${totalVideos} video`);
@@ -192,6 +227,10 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.error(`\n[FATAL] ${err.message}`);
+  console.error("");
+  console.error("!".repeat(60));
+  console.error("  [FATAL] " + err.message);
+  console.error("!".repeat(60));
+  console.error("");
   process.exit(1);
 });
